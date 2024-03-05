@@ -1,25 +1,72 @@
 // content.js
 
-console.log('Content script loaded');
+// console.log('Content script loaded');
 
-function assignRandomValues() {
+function assignRandomValues(question) {
+
+  chrome.storage.sync.get(['assignedValues'], function(result) {
+    const assignedValues = result.assignedValues || {};
+    assignedValues['randomValue']=true;
+      let values = assignedValues['randomMark'] || {};
+    // Assign random values to specific IDs
+    const spans = document.querySelectorAll('span[id^="assessment-score-"]');
+    if(Object.keys(values).length <= 0){
+      spans.forEach((span) => {
+        const id = span.id;
+        const randomValue = getMarks(question)
+        values[id] = randomValue.toFixed(1);
+        span.innerHTML = `&nbsp;&nbsp;<b>${randomValue.toFixed(1)}</b>`;
+      });
+    } else{
+      spans.forEach((span) => {
+        const id = span.id;
+        const randomValue = values[id].toFixed(1);
+        values[id] = randomValue;
+        span.innerHTML = `&nbsp;&nbsp;<b>${randomValue.toFixed(1)}</b>`;
+      });
+    }
+
+      assignedValues['randomMark']=values;
+    
+      chrome.storage.sync.set({ 'assignedValues': assignedValues });
+
+    });
+
+}
+function assignPreValues() {
 
   chrome.storage.sync.get(['assignedValues'], function(result) {
     const assignedValues = result.assignedValues || {};
     console.log(assignedValues)
+    try {
+      
+      if(assignedValues['randomValue']){
+        let marks = assignedValues['randomMark'];
+        Object.entries(marks).forEach(([markId, mark]) => {
+          const span = document.getElementById(markId);
+          span.innerHTML = `&nbsp;&nbsp;<b>${mark}</b>`;
+    
+        });
+      }else{
+        let marks = assignedValues['modifyMark'];
+        Object.entries(marks).forEach(([week, mark]) => {
+          const span = document.getElementById('assessment-score-Week ' + week + ' : Assignment ' + week);
+          span.innerHTML = `&nbsp;&nbsp;<b>${mark}</b>`;
+    
+        });
 
-    Object.entries(assignedValues).forEach(([week, mark]) => {
-      const span = document.getElementById('assessment-score-Week ' + week + ' : Assignment ' + week);
-      span.innerHTML = `&nbsp;&nbsp;<b>${mark}</b>`;
+      }
+    } catch (error) {
+      console.log("prash: no entry");
+    }
 
-    });
   });
 
 }
 
 function clearStorage() {
   chrome.storage.sync.clear(function() {
-    console.log('Stored data cleared from background script');
+    console.log('prash: Stored data cleared ..');
   });
 }
 
@@ -31,19 +78,29 @@ function getMarks(questions) {
     // Calculate the percentage, but ensure it doesn't exceed 100%
     const calculatedPercentage = Math.min(incrementBy * assignmentMarks, 100);
 
-    return calculatedPercentage
+    return parseFloat(calculatedPercentage)
 }
 
 function modifyMarks(mark,week) {
   // Retrieve assigned values from Chrome storage
   chrome.storage.sync.get(['assignedValues'], function(result) {
     const assignedValues = result.assignedValues || {};
-    // console.log(assignedValues)
     
-    const span = document.getElementById('assessment-score-Week ' + week + ' : Assignment ' + week);
+    if(assignedValues['randomValue']){
+      let values = assignedValues['randomMark'] || {};
+      values['assessment-score-Week ' + week + ' : Assignment ' + week]=mark;
 
-    assignedValues[`${week}`]=mark;
-    
+    }else{
+      let values = assignedValues['modifyMark'] || {};
+      assignedValues['randomValue']=false;
+      // console.log(assignedValues)
+      
+      values[`${week}`]=mark;
+      
+      assignedValues['modifyMark']=values; 
+    }
+
+    const span = document.getElementById('assessment-score-Week ' + week + ' : Assignment ' + week);
     span.innerHTML = `&nbsp;&nbsp;<b>${mark}</b>`;
   
     chrome.storage.sync.set({ 'assignedValues': assignedValues });
@@ -51,81 +108,29 @@ function modifyMarks(mark,week) {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  console.log('Received message:', request);
+  // console.log('Received message:', request);
 
+  if (request.action === 'assignPreValues') {
+    console.log("prash: prevalue assign.")
+    assignPreValues();
+  }
   if (request.action === 'assignRandomValues') {
-    console.log("call receove..")
-    assignRandomValues();
+    console.log("prash: assign random values.")
+    const question = request.question;
+    assignRandomValues(question);
   }
   if (request.action === 'clearStorage') {
-    console.log("call celar..")
+    console.log("prash: clear data.")
     clearStorage();
   }
 
   if (request.action === 'modifyMarks') {
+    console.log("prash: modify one entry.")
     const mark = request.mark;
     const week = request.week;
     modifyMarks(mark,week);
   }
 });
-
-
-
-
-// console.log('Before adding listener');
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//   console.log('Received message:', request);
-
-//   if (request.action === 'assignRandomValues') {
-//     console.log("On refresh changing value")
-//     const values = {};
-
-//     // Assign random values to specific IDs
-//     const spans = document.querySelectorAll('span[id^="assessment-score-"]');
-    
-//     spans.forEach((span) => {
-//       const id = span.id;
-//       const randomValue = Math.random() * 100; // Modify this logic as needed
-//       values[id] = randomValue;
-//       span.innerHTML = `&nbsp;&nbsp;<b>${randomValue.toFixed(1)}</b>`;
-//     });
-
-//     // Retrieve existing values from Chrome storage
-//     chrome.storage.sync.get(['assignedValues'], function(result) {
-//       const existingValues = result.assignedValues || {};
-
-//       // Merge existing values with newly assigned values
-//       const updatedValues = { ...existingValues, ...values };
-
-//       // Save the merged values back to Chrome storage
-//       chrome.storage.sync.set({ 'assignedValues': updatedValues });
-//     });
-//   }
-
-//   if (request.action === 'modifyMarks') {
-//     const increment = request.increment;
-
-//     // Retrieve assigned values from Chrome storage
-//     chrome.storage.sync.get(['assignedValues'], function(result) {
-//       const assignedValues = result.assignedValues || {};
-
-//       const spans = document.querySelectorAll('span[id^="assessment-score-"]');
-  
-//       spans.forEach((span) => {
-//         const id = span.id;
-//         const currentMark = assignedValues[id] || 0;
-//         const newMark = currentMark + increment;
-//         assignedValues[id] = newMark;
-
-//         // Save modified values back to Chrome storage
-//         chrome.storage.sync.set({ 'assignedValues': assignedValues });
-
-//         span.innerHTML = `&nbsp;&nbsp;<b>${newMark.toFixed(1)}</b>`;
-//       });
-//     });
-//   }
-// });
-// console.log('After adding listener');
 
 
   
