@@ -64,6 +64,36 @@ function assignPreValues() {
 
 }
 
+function updateProgressBar() {
+  // Get all the tr elements inside the div with id "unit_wise_progress"
+const trElements = document.querySelectorAll('#unit_wise_progress table tbody tr');
+
+// Iterate through each tr element
+trElements.forEach((trElement) => {
+  // Get the third td element inside the tr
+  const thirdTd = trElement.querySelector('td:nth-child(3)');
+
+  // Check if the third td element exists
+  if (thirdTd) {
+    // Get the progress element inside the tr
+    const progressElement = thirdTd.querySelector('progress');
+    if (progressElement) {
+      progressElement.value = 100; 
+      // Get the span element inside the third td
+      const spanElement = thirdTd.querySelector('span');
+  
+      // Check if the span element exists
+      if (spanElement) {
+        // Change percentage in the span element 
+        spanElement.innerHTML = '100%'; 
+      }
+    }
+
+  }
+});
+
+}
+
 function clearStorage() {
   chrome.storage.sync.clear(function() {
     console.log('prash: Stored data cleared ..');
@@ -112,6 +142,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.action === 'assignPreValues') {
     console.log("prash: prevalue assign.")
+    updateProgressBar();
     assignPreValues();
   }
   if (request.action === 'assignRandomValues') {
