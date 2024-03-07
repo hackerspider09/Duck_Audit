@@ -1,4 +1,5 @@
 // popup.js
+console.log('Hello from Prash');
 
 document.addEventListener('DOMContentLoaded', function() {
     const applyBtn = document.getElementById('apply-btn');

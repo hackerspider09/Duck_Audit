@@ -37,7 +37,7 @@ function assignPreValues() {
 
   chrome.storage.sync.get(['assignedValues'], function(result) {
     const assignedValues = result.assignedValues || {};
-    console.log(assignedValues)
+    // console.log(assignedValues)
     try {
       
       if(assignedValues['randomValue']){
