@@ -15,8 +15,8 @@
 1. Click on the "Code" button on the GitHub repository page.
 2. Select "Download ZIP."
 3. Extract the ZIP file to a location of your choice.
-
-### Setup Extension
+---
+## Setup Extension
 
 1. Open Google Chrome.
 2. Navigate to the extensions management page: `chrome://extensions/`.
