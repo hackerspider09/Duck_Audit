@@ -94,6 +94,18 @@ trElements.forEach((trElement) => {
 
 }
 
+function upDateCircle() {
+  // Select the div with the class 'pie'
+const pieElement = document.querySelector('.pie');
+
+// Change the --p variable to 28
+pieElement.style.setProperty('--p', '100');
+
+// Update the inner text to 100%
+pieElement.innerText = '100%';
+
+}
+
 function clearStorage() {
   chrome.storage.sync.clear(function() {
     console.log('prash: Stored data cleared ..');
@@ -139,11 +151,12 @@ function modifyMarks(mark,week) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // console.log('Received message:', request);
-
+  upDateCircle();
   if (request.action === 'assignPreValues') {
     console.log("prash: prevalue assign.")
     updateProgressBar();
     assignPreValues();
+    
   }
   if (request.action === 'assignRandomValues') {
     console.log("prash: assign random values.")
