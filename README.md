@@ -1,4 +1,4 @@
-# Marks Modifier
+# Duck_Audit
 
 ## Installation
 
@@ -7,7 +7,7 @@
 1. Clone the repository using the following commands:
 
     ```bash
-    git clone https://github.com/hackerspider09/NPTEL-Marks-Modifier
+    git clone https://github.com/hackerspider09/Duck_Audit
     ```
 
 ### Option 2: Download as ZIP
