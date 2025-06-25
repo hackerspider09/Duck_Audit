@@ -1,13 +1,21 @@
 // content.js
 
+// Developed By Prasad (hackerspider09)
+
 // console.log('Content script loaded');
+console.log("Content script reloaded after refresh.");
+
 
 function assignRandomValues(question) {
 
   chrome.storage.sync.get(['assignedValues'], function(result) {
+    console.log("Stored values after refresh: ", result.assignedValues);
+
     const assignedValues = result.assignedValues || {};
     assignedValues['randomValue']=true;
       let values = assignedValues['randomMark'] || {};
+
+      
     // Assign random values to specific IDs
     const spans = document.querySelectorAll('span[id^="assessment-score-"]');
     if(Object.keys(values).length <= 0){
@@ -100,8 +108,15 @@ const pieElement = document.querySelector('.pie');
 
 // Change the --p variable to 28
 pieElement.style.setProperty('--p', '100');
+pieElement.style.transition = "all 2s ease-in-out";
 
+// Change the --p variable to 100 with the transition
+// setTimeout(() => {
+    // pieElement.style.setProperty('--p', '100');
+// }, 100); // Delay to ensure transition is applied
 // Update the inner text to 100%
+
+
 pieElement.innerText = '100%';
 
 }

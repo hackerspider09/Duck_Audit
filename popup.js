@@ -1,5 +1,7 @@
 // popup.js
 console.log('Hello from Prash');
+// Developed By Prasad (hackerspider09)
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const applyBtn = document.getElementById('apply-btn');
